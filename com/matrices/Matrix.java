@@ -1,6 +1,7 @@
 package com.matrices;
 
-import java.lang.Exception;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Matrix implements TwoDimensional<Double> {
     //table itself
@@ -8,7 +9,7 @@ public class Matrix implements TwoDimensional<Double> {
     //dimensions
     private Integer rows, columns;
 
-    //accessors
+    // methods-accessors
     public Integer[] getDimensions() {
         return new Integer[]{rows, columns};
     }
@@ -29,8 +30,7 @@ public class Matrix implements TwoDimensional<Double> {
 
     public void assign(TwoDimensional<Double> another) {
         // COPY all stuff from another
-        this.table =
-                new Double[another.getDimensions()[0]][another.getDimensions()[1]];
+        this.table = new Double[another.getDimensions()[0]][another.getDimensions()[1]];
 
         this.rows = another.getDimensions()[0];
         this.columns = another.getDimensions()[1];
@@ -40,6 +40,45 @@ public class Matrix implements TwoDimensional<Double> {
                 set(i, j, another.get(i, j));
             }
         }
+    }
+
+    public static Matrix divide(Matrix m1, Matrix m2) {
+        Matrix result = new Matrix(), temp = new Matrix();
+        temp.assign(m2);
+        temp.gaussian_invert();
+        result.assign(multiply(m1, temp));
+        return result;
+    }
+
+    public void divide(Matrix another) {
+        assign(divide(this, another));
+    }
+
+    public void input() {
+        System.out.println("Please, input the size of matrix in form:\nrows columns");
+        Scanner sc = new Scanner(System.in);
+        if(sc.hasNextInt())
+            rows = sc.nextInt();
+        else throw new RuntimeException("Entered not integer number");
+        if (sc.hasNextInt())
+            columns = sc.nextInt();
+        else throw new RuntimeException("Entered not integer number");
+
+        Double[][] arr = new Double[rows][columns];
+
+        System.out.println("Input the matrix elements\nEach row on new console row\nElements separated by commas");
+        for(int i = 0; i < rows; i++) {
+//            System.out.println("now enter the "+i+"th row splitted by comma("+columns+" elements):");
+            String new_Row = sc.next();
+//            new_Row += " 3";
+            String[] a = new_Row.split(",");
+//            System.out.println(Arrays.toString(a));
+            if(a.length != columns) throw new RuntimeException("Entered not "+columns+" numbers, but " + a.length+": "+Arrays.toString(a));
+            for(int j = 0; j < columns; j++) {
+                arr[i][j] = Double.parseDouble(a[j]);
+            }
+        }
+        assign(new Matrix(arr));
     }
 
     @Override
@@ -129,7 +168,7 @@ public class Matrix implements TwoDimensional<Double> {
     @Override
     public Double get(int i, int j) {
         if (i >= rows || j >= columns) {
-            throw new RuntimeException("Matrix index out of range.");
+            throw new RuntimeException("Matrix index out of range: " + i + " " + j);
         }
         return table[i][j];
     }
@@ -280,6 +319,7 @@ public class Matrix implements TwoDimensional<Double> {
         return r.toString();
     }
 
+    @Deprecated
     public void invert() {
         if(!determinable()) {
             throw new RuntimeException("Cannot invert not quadratic matrix.");
@@ -298,13 +338,13 @@ public class Matrix implements TwoDimensional<Double> {
             }
         }
         this.transpose();
-        this.multiply(1.0 / ((Double)Determinant.evaluateDeterminant(temp)));
+        this.multiply(1.0 / Determinant.evaluateDeterminant(temp));
     }
 
     public void gaussian_invert() {
         if(!this.determinable() || Determinant.evaluateDeterminant(this) == 0) {
             throw new RuntimeException("Matrix could not be" +
-                    " inverted because its determinant is 0.");
+                    " inverted because its determinant is 0 or it has no determinant.");
         }
         //matrix for finding rank
         Matrix temp = new Matrix(rows, columns * 2);
@@ -324,13 +364,10 @@ public class Matrix implements TwoDimensional<Double> {
             }
         }
 
-
         temp = getEquivalent(temp);
 
-        System.out.println(temp + "\n after transformations");
-
 	for(int i = 0; i < columns; ++i) {
-	    temp.deleteColumn(columns);
+	    temp.deleteColumn(0);
 	}
         assign(temp);
     }
@@ -339,10 +376,10 @@ public class Matrix implements TwoDimensional<Double> {
         Matrix res = new Matrix(m.rows, m.columns);
         for (int i = 0; i < res.rows; i++) {
             for (int j = 0; j < res.columns; j++) {
+//                System.out.println("setting");
                 res.set(i, j, (i == j) ? 1.0 : 0.0);
             }
         }
-        System.out.println("Returning equiv un matr:\n" + res);
         return res;
     }
 
@@ -351,36 +388,56 @@ public class Matrix implements TwoDimensional<Double> {
 
         result.assign(m);
 
-        for (int i = 0; i < result.rows; i++) {
+
+        for (int i = 0; i < result.rows; i++) { //
+//            System.out.println("processing "+i+"th column:\n" + result);
             if(result.get(i, i) == 0) {
                 throw new RuntimeException("Cannot invert matrix!");
             }
             if(result.get(i, i) != 1) {
+//                System.out.println(i+"th and "+i+"th element != 1");
 //                    код для деления текущей строки на такое число,
 //                    чтобы получить все единицы на диагонали
                 Double temp = result.get(i, i);
-                for (int j = i + 1; j < result.rows; ++j) {
+//                System.out.println("dividing this row by the "+result.get(i, i));
+                for (int j = i; j < result.columns; ++j) {
+//                    System.out.println("dividing "+result.get(i, j)+" by "+temp);
                     result.set(i, j, result.get(i, j) / temp);
                     if(checkForNaNAndInf(result)) {
                         throw new RuntimeException("Error in getting" +
                                 " equivalence for rang search.");
                     }
                 }
+//                System.out.println("we have now the" +
+//                        " diagonal element = 1\n"
+//                        + result);
             }
             //код для обнуления всех элементов которые стоят
             // ниже или правее элемента ii
-            for (int j = i + 1; j < result.rows; j++) {
-                for (int k = i; k < result.columns; k++) {
-                    Double temp = -result.get(j, k);
-                    result.set(j, k, result.get(j, k)+(result.get(i, k)*temp));
+
+//            System.out.println(result);
+//            System.out.println("then, work with rows");
+            for (int j = 0; j < result.rows; j++) {
+                if(j == i) continue;
+//                System.out.println("so, the "+j+"th row");
+                Double temp = -result.get(j, i);
+//                System.out.println("the "+i+"th row will be multiplied by "+temp+
+//                " and added to " + j + "th row");
+                for(int k = i; k < result.columns; ++k) {
+//                    System.out.print("multiply " + result.get(i, k) + " to "+
+//                            temp + " and plus " + result.get(j, k)
+//                            +".\nso we change the "
+//                            + result.get(j, k) + " ");
+                    result.set(j, k, result.get(i, k) * temp +
+                            result.get(j, k));
+//                    System.out.println(" to "+result.get(j, k));
                 }
             }
-            for (int j = i+1; j < result.rows; j++) {
-                result.set(i, j, 0.0);
-            }
+//            System.out.println("so, we couped with "+ i +
+//            "th column\n"+ result);
 
         }
-        System.out.println("Returning from getEquiv:\n" + result);
+//        System.out.println("Returning from getEquiv:\n" + result);
         return result;
     }
 }
