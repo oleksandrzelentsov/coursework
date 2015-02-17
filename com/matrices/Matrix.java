@@ -1,5 +1,6 @@
 package com.matrices;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -57,6 +58,33 @@ public class Matrix implements TwoDimensional<Double> {
     public void input() {
         System.out.println("Please, input the size of matrix in form:\nrows columns");
         Scanner sc = new Scanner(System.in);
+        if(sc.hasNextInt())
+            rows = sc.nextInt();
+        else throw new RuntimeException("Entered not integer number");
+        if (sc.hasNextInt())
+            columns = sc.nextInt();
+        else throw new RuntimeException("Entered not integer number");
+
+        Double[][] arr = new Double[rows][columns];
+
+        System.out.println("Input the matrix elements\nEach row on new console row\nElements separated by commas");
+        for(int i = 0; i < rows; i++) {
+//            System.out.println("now enter the "+i+"th row splitted by comma("+columns+" elements):");
+            String new_Row = sc.next();
+//            new_Row += " 3";
+            String[] a = new_Row.split(",");
+//            System.out.println(Arrays.toString(a));
+            if(a.length != columns) throw new RuntimeException("Entered not "+columns+" numbers, but " + a.length+": "+Arrays.toString(a));
+            for(int j = 0; j < columns; j++) {
+                arr[i][j] = Double.parseDouble(a[j]);
+            }
+        }
+        assign(new Matrix(arr));
+    }
+
+    public void input(InputStream is) {
+        System.out.println("Please, input the size of matrix in form:\nrows columns");
+        Scanner sc = new Scanner(is);
         if(sc.hasNextInt())
             rows = sc.nextInt();
         else throw new RuntimeException("Entered not integer number");
