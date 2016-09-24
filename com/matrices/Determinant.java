@@ -11,7 +11,6 @@ public class Determinant implements TwoDimensional<Double> {
                 det.set(i, j, 0.0);
             }
         }
-
         return det;
     }
 
@@ -89,7 +88,9 @@ public class Determinant implements TwoDimensional<Double> {
             int size = another.getDimensions()[0];
             double result = 0;
             for (int i = 0; i < size; i++) {
-                result += another.get(i, 0) * Math.pow(-1, i) * evaluateDeterminant(another.minor(i, 0));
+                result += another.get(i, 0) *
+                          Math.pow(-1, i) *
+                          evaluateDeterminant(another.minor(i, 0));
             }
             return result;
         }
@@ -101,7 +102,8 @@ public class Determinant implements TwoDimensional<Double> {
     }
 
     public Determinant(Double[][] table) {
-        if(!determinable(table)) throw new RuntimeException("Determinant could not be not quadratic.");
+        if(!determinable(table))
+            throw new RuntimeException("Determinant could not be not quadratic.");
         this.table = table;
         size = table.length;
     }
@@ -125,5 +127,4 @@ public class Determinant implements TwoDimensional<Double> {
         r.append("}");
         return r.toString();
     }
-
 }

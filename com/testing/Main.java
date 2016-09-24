@@ -250,10 +250,17 @@ public class Main {
             }
         };
 
-        Action[] actions = new Action[]{subtraction,
-                addition, multiplication_m,
-                multiplication_n, division, determinant,
-                fileInput, fileOutput, exit};
+        Action[] actions = new Action[]{
+            subtraction,
+            addition,
+            multiplication_m,
+            multiplication_n,
+            division,
+            determinant,
+            fileInput,
+            fileOutput,
+            exit
+        };
         menu.addActions(actions);
 
         menu.mainLoop();

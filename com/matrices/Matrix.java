@@ -69,11 +69,8 @@ public class Matrix implements TwoDimensional<Double> {
 
         System.out.println("Input the matrix elements\nEach row on new console row\nElements separated by commas");
         for(int i = 0; i < rows; i++) {
-//            System.out.println("now enter the "+i+"th row splitted by comma("+columns+" elements):");
             String new_Row = sc.next();
-//            new_Row += " 3";
             String[] a = new_Row.split(",");
-//            System.out.println(Arrays.toString(a));
             if(a.length != columns) throw new RuntimeException("Entered not "+columns+" numbers, but " + a.length+": "+Arrays.toString(a));
             for(int j = 0; j < columns; j++) {
                 arr[i][j] = Double.parseDouble(a[j]);
@@ -96,11 +93,8 @@ public class Matrix implements TwoDimensional<Double> {
 
         System.out.println("Input the matrix elements\nEach row on new console row\nElements separated by commas");
         for(int i = 0; i < rows; i++) {
-//            System.out.println("now enter the "+i+"th row splitted by comma("+columns+" elements):");
             String new_Row = sc.next();
-//            new_Row += " 3";
             String[] a = new_Row.split(",");
-//            System.out.println(Arrays.toString(a));
             if(a.length != columns) throw new RuntimeException("Entered not "+columns+" numbers, but " + a.length+": "+Arrays.toString(a));
             for(int j = 0; j < columns; j++) {
                 arr[i][j] = Double.parseDouble(a[j]);
@@ -394,9 +388,9 @@ public class Matrix implements TwoDimensional<Double> {
 
         temp = getEquivalent(temp);
 
-	for(int i = 0; i < columns; ++i) {
-	    temp.deleteColumn(0);
-	}
+        for(int i = 0; i < columns; ++i) {
+            temp.deleteColumn(0);
+        }
         assign(temp);
     }
 
@@ -404,7 +398,6 @@ public class Matrix implements TwoDimensional<Double> {
         Matrix res = new Matrix(m.rows, m.columns);
         for (int i = 0; i < res.rows; i++) {
             for (int j = 0; j < res.columns; j++) {
-//                System.out.println("setting");
                 res.set(i, j, (i == j) ? 1.0 : 0.0);
             }
         }
@@ -413,59 +406,31 @@ public class Matrix implements TwoDimensional<Double> {
 
     public static Matrix getEquivalent(Matrix m) {
         Matrix result = new Matrix();
-
         result.assign(m);
-
-
         for (int i = 0; i < result.rows; i++) { //
-//            System.out.println("processing "+i+"th column:\n" + result);
             if(result.get(i, i) == 0) {
                 throw new RuntimeException("Cannot invert matrix!");
             }
             if(result.get(i, i) != 1) {
-//                System.out.println(i+"th and "+i+"th element != 1");
-//                    код для деления текущей строки на такое число,
-//                    чтобы получить все единицы на диагонали
                 Double temp = result.get(i, i);
-//                System.out.println("dividing this row by the "+result.get(i, i));
                 for (int j = i; j < result.columns; ++j) {
-//                    System.out.println("dividing "+result.get(i, j)+" by "+temp);
                     result.set(i, j, result.get(i, j) / temp);
                     if(checkForNaNAndInf(result)) {
                         throw new RuntimeException("Error in getting" +
                                 " equivalence for rang search.");
                     }
                 }
-//                System.out.println("we have now the" +
-//                        " diagonal element = 1\n"
-//                        + result);
             }
-            //код для обнуления всех элементов которые стоят
-            // ниже или правее элемента ii
-
-//            System.out.println(result);
-//            System.out.println("then, work with rows");
             for (int j = 0; j < result.rows; j++) {
                 if(j == i) continue;
-//                System.out.println("so, the "+j+"th row");
                 Double temp = -result.get(j, i);
-//                System.out.println("the "+i+"th row will be multiplied by "+temp+
-//                " and added to " + j + "th row");
                 for(int k = i; k < result.columns; ++k) {
-//                    System.out.print("multiply " + result.get(i, k) + " to "+
-//                            temp + " and plus " + result.get(j, k)
-//                            +".\nso we change the "
-//                            + result.get(j, k) + " ");
                     result.set(j, k, result.get(i, k) * temp +
                             result.get(j, k));
-//                    System.out.println(" to "+result.get(j, k));
                 }
             }
-//            System.out.println("so, we couped with "+ i +
-//            "th column\n"+ result);
 
         }
-//        System.out.println("Returning from getEquiv:\n" + result);
         return result;
     }
 }
